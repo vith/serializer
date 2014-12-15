@@ -65,7 +65,12 @@ class ArrayCollectionHandler implements SubscribingHandlerInterface
         // We change the base type, and pass through possible parameters.
         $type['name'] = 'array';
 
-        return $visitor->visitArray($collection->toArray(), $type, $context);
+        // Convert to a PHP array and force a reindexing. This is necessary because
+        // ArrayCollection->remove() can leave gaps in the numeric indexes,
+        // causing the array to be serialized as an object.
+        $array = array_values($collection->toArray());
+
+        return $visitor->visitArray($array, $type, $context);
     }
 
     public function deserializeCollection(VisitorInterface $visitor, $data, array $type, Context $context)
